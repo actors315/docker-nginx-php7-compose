@@ -3,6 +3,7 @@ services:
   web:
     image: "actors315/webdev:latest"
     container_name: webapp
+    hostname: webapp
     depends_on:
       - mysql
       - redis
@@ -12,27 +13,30 @@ services:
       - "443:443"
       - "2222:22"
     links:
-      - mysql
-      - redis
-      - mongodb
+      - mysql:dev.local.mysql
+      - redis:dev.local.redis
+      - mongodb:dev.local.mongo
     volumes:
       - E:\code:/data/code
   redis:
     image: "redis:5.0"
     container_name: service-redis
-    hostname: dev-docker-redis
+    hostname: redis
     restart: always
     ports:
       - "6379:6379"
   mysql:
     image: "mysql:5.7"
     container_name: service-mysql-master
-    hostname: dev-docker-mysql
+    hostname: mysql-master
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_HOST: ${MYSQL_ROOT_HOST}
     ports:
       - "3306:3306"
   mongodb:
     image: "mongo:4.0"
     container_name: service-mongo
-    hostname: dev-docker-mongo
+    hostname: mongodb
     ports:
       - "27017:27017"
