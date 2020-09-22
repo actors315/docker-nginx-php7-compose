@@ -1,42 +1,64 @@
 version: '3'
 services:
-  web:
-    image: "actors315/webdev:latest"
-    container_name: webapp
-    hostname: webapp
-    depends_on:
-      - mysql
-      - redis
-      - mongodb
-    ports:
-      - "80:80"
-      - "443:443"
-      - "2222:22"
-    links:
-      - mysql:dev.local.mysql
-      - redis:dev.local.redis
-      - mongodb:dev.local.mongo
-    volumes:
-      - E:\code:/data/code
-  redis:
-    image: "redis:5.0"
-    container_name: service-redis
-    hostname: redis
-    restart: always
-    ports:
-      - "6379:6379"
-  mysql:
-    image: "mysql:5.7"
-    container_name: service-mysql-master
-    hostname: mysql-master
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_ROOT_HOST: ${MYSQL_ROOT_HOST}
-    ports:
-      - "3306:3306"
-  mongodb:
-    image: "mongo:4.0"
-    container_name: service-mongo
-    hostname: mongodb
-    ports:
-      - "27017:27017"
+    web:
+        image: "actors315/webdev:latest"
+        container_name: webapp
+        hostname: webapp
+        networks:
+            - dev-local-network
+        depends_on:
+            - mysql
+            - redis
+            - mongodb
+        ports:
+            - "80:80"
+            - "443:443"
+            - "2222:22"
+        links:
+            - mysql:dev.local.mysql
+            - redis:dev.local.redis
+            - mongodb:dev.local.mongo
+        volumes:
+            - E:\code:/data/code
+            - E:\tools\.ssh:/root/.ssh
+    redis:
+        image: "redis:5.0"
+        container_name: service-redis
+        hostname: redis
+        networks:
+            - dev-local-network
+        restart: always
+        ports:
+            - "6379:6379"
+        volumes:
+            - E:\tools\develop-data\redis5.0\data:/data
+        command: ["redis-server", "--appendonly", "yes"]
+    mysql:
+        image: "mysql:5.7"
+        container_name: service-mysql-master
+        hostname: mysql-master
+        networks:
+            - dev-local-network
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_ROOT_HOST: ${MYSQL_ROOT_HOST}
+        ports:
+            - "3306:3306"
+        volumes:
+            - E:\tools\develop-data\mysql5.7\master:/var/lib/mysql
+    mongodb:
+        image: "mongo:4.0"
+        container_name: service-mongo
+        hostname: mongodb
+        networks:
+            - dev-local-network
+        environment:
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+        ports:
+            - "27017:27017"
+        volumes:
+            - E:\tools\develop-data\mongodb4.0\data:/data/db
+            
+networks:
+    dev-local-network:
+    
